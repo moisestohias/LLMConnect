@@ -1,5 +1,5 @@
 """
-HTTP LLM-Providers Client using only Python standard library.
+HTTP LLM-Providers API Client using only Python standard library.
 """
 
 
@@ -9,11 +9,13 @@ from typing import Dict, List, Optional, Any, AsyncIterator, Union, Iterator
 
 from base import (
     SyncHTTPClient, AsyncHTTPClient,
-    create_sync_client, create_async_client,
     ConnectionPool, RetryConfig, BaseMiddleware,
     AuthenticationMiddleware, UserAgentMiddleware, LoggingMiddleware,
-    HTTPResponse, api_key, user_agent
+    HTTPResponse,
 )
+
+user_agent: str = "APIClient/1.0.0"
+
 
 # Core API Logic
 class APIExecutor:
@@ -346,131 +348,6 @@ class AsyncAPIClient:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
 
-# Factory Functions
-def create_sync_api_client(api_key: str, endpoint: str, base_url: str,
-                          model: str = "llama-3.3-70b",
-                          temperature: float = 0.7,
-                          max_completion_tokens: int = 100,
-                          timeout: float = 30.0,
-                          **kwargs) -> SyncAPIClient:
-    """Create a configured synchronous API client."""
-    return SyncAPIClient(
-        api_key=api_key,
-        endpoint=endpoint,
-        base_url=base_url,
-        model=model,
-        temperature=temperature,
-        max_completion_tokens=max_completion_tokens,
-        timeout=timeout,
-        **kwargs
-    )
-
-def create_async_api_client(api_key: str, endpoint: str, base_url: str,
-                           model: str = "llama-3.3-70b",
-                           temperature: float = 0.7,
-                           max_completion_tokens: int = 100,
-                           timeout: float = 30.0,
-                           **kwargs) -> AsyncAPIClient:
-    """Create a configured asynchronous API client."""
-    return AsyncAPIClient(
-        api_key=api_key,
-        endpoint=endpoint,
-        base_url=base_url,
-        model=model,
-        temperature=temperature,
-        max_completion_tokens=max_completion_tokens,
-        timeout=timeout,
-        **kwargs
-    )
-
-# Convenience functions for common LLM providers
-def create_cerebras_sync_client(api_key: Optional[str] = None,
-                               model: str = "llama-3.3-70b",
-                               **kwargs) -> SyncAPIClient:
-    """Create a sync client for Cerebras API."""
-    return create_sync_api_client(
-        api_key=api_key or globals().get('api_key', ''),
-        endpoint="chat/completions",
-        base_url="https://api.cerebras.ai/v1",
-        model=model,
-        **kwargs
-    )
-
-def create_cerebras_async_client(api_key: Optional[str] = None,
-                                model: str = "llama-3.3-70b",
-                                **kwargs) -> AsyncAPIClient:
-    """Create an async client for Cerebras API."""
-    return create_async_api_client(
-        api_key=api_key or globals().get('api_key', ''),
-        endpoint="chat/completions",
-        base_url="https://api.cerebras.ai/v1",
-        model=model,
-        **kwargs
-    )
-
 # Backward compatibility aliases
 APIClient = AsyncAPIClient
 BaseAPIClient = AsyncAPIClient
-
-# Example usage functions
-def sync_example():
-    """Example of using the synchronous API client."""
-    print("=== Synchronous API Client Example ===")
-
-    with create_cerebras_sync_client() as client:
-        try:
-            # Simple chat
-            response = client.chat("Say hello and nothing else")
-            print(f"Assistant: {response}")
-
-            # Continue conversation
-            response = client.chat("Now say it in Spanish")
-            print(f"Assistant: {response}")
-
-            # Streaming chat
-            print("Streaming response: ", end="")
-            for chunk in client.chat("Count from 1 to 5", stream=True):
-                print(chunk, end="", flush=True)
-            print()
-
-            # print(f"Conversation has {len(client.messages)} messages")
-
-        except Exception as e:
-            print(f"Error: {e}")
-
-async def async_example():
-    """Example of using the asynchronous API client."""
-    print("\n=== Asynchronous API Client Example ===")
-
-    async with create_cerebras_async_client() as client:
-        try:
-            # Simple chat
-            response = await client.chat("Say hello and nothing else")
-            print(f"Assistant: {response}")
-
-            # Continue conversation
-            response = await client.chat("Now say it in French")
-            print(f"Assistant: {response}")
-
-            # Streaming chat - don't await the chat call for streaming
-            print("Streaming response: ", end="")
-            stream = await client.chat("Count from 1 to 3", stream=True)  # No await here
-            async for chunk in stream:  # Iterate over the async generator
-                print(chunk, end="", flush=True)
-            print()
-
-            print(f"Conversation has {len(client.messages)} messages")
-
-        except Exception as e:
-            print(f"Error: {e}")
-
-def main():
-    """Run examples demonstrating both sync and async usage."""
-    # Test sync client
-    # sync_example()
-
-    # Test async client
-    asyncio.run(async_example())
-
-if __name__ == "__main__":
-    main()

@@ -604,8 +604,3 @@ class AsyncHTTPClient:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
-
-# # Backward compatibility aliases
-# HTTPClient = AsyncHTTPClient
-# StreamingHTTPClient = AsyncHTTPClient  # Both use the same client now
-# create_http_client = create_async_client

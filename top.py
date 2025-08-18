@@ -21,19 +21,18 @@ user_agent: str = "APIClient/1.0.0"
 class APIExecutor:
     """Core API logic shared between sync and async clients."""
 
-    def __init__(self, api_key: str, endpoint: str = "chat/completions", 
-                 base_url: str = "https://api.cerebras.ai/v1",
-                 model: str = "llama-3.3-70b",
+    def __init__(self, api_key: str, base_url: str, model: str, 
+                 endpoint: str = "chat/completions",
                  temperature: float = 0.7,
                  max_completion_tokens: int = 100,
                  timeout: float = 30.0):
         self.api_key = api_key
-        self.endpoint = endpoint.rstrip('/').lstrip('/')
         self.base_url = base_url.rstrip('/')
+        self.model = model
+        self.endpoint = endpoint.rstrip('/').lstrip('/')
         self.timeout = timeout
 
         # LLM-specific parameters
-        self.model = model
         self.temperature = temperature
         self.max_completion_tokens = max_completion_tokens
         self.messages = []
@@ -135,8 +134,8 @@ class APIExecutor:
 class SyncAPIClient:
     """Synchronous LLM API client."""
 
-    def __init__(self, api_key: str, endpoint: str, base_url: str,
-                 model: str = "llama-3.3-70b",
+    def __init__(self, api_key: str, base_url: str, model: str,
+                 endpoint: str = "chat/completions",
                  temperature: float = 0.7,
                  max_completion_tokens: int = 100,
                  timeout: float = 30.0,
@@ -146,7 +145,7 @@ class SyncAPIClient:
                  retry_config: Optional[RetryConfig] = None):
 
         self._executor = APIExecutor(
-            api_key, endpoint, base_url, model, temperature, max_completion_tokens, timeout
+            api_key, base_url, model, endpoint, temperature, max_completion_tokens, timeout
         )
 
         # Use provided client or create a new one
@@ -243,8 +242,8 @@ class SyncAPIClient:
 class AsyncAPIClient:
     """Asynchronous LLM API client."""
 
-    def __init__(self, api_key: str, endpoint: str, base_url: str,
-                model: str = "llama-3.3-70b",
+    def __init__(self, api_key: str, base_url: str, model: str,
+                endpoint: str = "chat/completions",
                 temperature: float = 0.7,
                 max_completion_tokens: int = 100,
                 timeout: float = 30.0,
@@ -254,7 +253,7 @@ class AsyncAPIClient:
                 retry_config: Optional[RetryConfig] = None):
 
         self._executor = APIExecutor(
-            api_key, endpoint, base_url, model, temperature, max_completion_tokens, timeout
+            api_key, base_url, model, endpoint, temperature, max_completion_tokens, timeout
         )
 
         # Use provided client or create a new one
@@ -347,7 +346,3 @@ class AsyncAPIClient:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
-
-# Backward compatibility aliases
-APIClient = AsyncAPIClient
-BaseAPIClient = AsyncAPIClient

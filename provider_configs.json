@@ -1,0 +1,67 @@
+{
+  "cerebras": {
+    "name": "Cerebras",
+    "base_url": "https://api.cerebras.ai/v1",
+    "endpoint": "chat/completions",
+    "api_key_env_var": "CEREBRAS_API_KEY",
+    "available_models": [
+      "llama-4-scout-17b-16e-instruct",
+      "llama3.1-8b",
+      "llama-3.3-70b",
+      "gpt-oss-120b",
+      "qwen-3-32b",
+      "llama-4-maverick-17b-128e-instruct",
+      "qwen-3-235b-a22b-instruct-2507",
+      "qwen-3-235b-a22b-thinking-2507",
+      "qwen-3-coder-480b"
+    ],
+    "default_model": "llama-3.3-70b",
+    "default_temperature": 0.7,
+    "default_max_tokens": 8000,
+    "default_timeout": 30.0
+  },
+  "groq": {
+    "name": "Groq",
+    "base_url": "https://api.groq.com/openai/v1",
+    "endpoint": "chat/completions",
+    "api_key_env_var": "GROQ_API_KEY",
+    "available_models": [
+      "allam-2-7b",
+      "compound-beta",
+      "compound-beta-mini",
+      "gemma2-9b-it",
+      "llama-3.1-8b-instant",
+      "llama-3.3-70b-versatile",
+      "llama3-70b-8192",
+      "llama3-8b-8192",
+      "meta-llama/llama-4-maverick-17b-128e-instruct",
+      "meta-llama/llama-4-scout-17b-16e-instruct",
+      "meta-llama/llama-guard-4-12b",
+      "meta-llama/llama-prompt-guard-2-22m",
+      "meta-llama/llama-prompt-guard-2-86m",
+      "moonshotai/kimi-k2-instruct"
+    ],
+    "default_model": "llama-3.3-70b-versatile",
+    "default_temperature": 0.7,
+    "default_max_tokens": 8000,
+    "default_timeout": 30.0
+  },
+  "openrouter": {
+    "name": "OpenRouter",
+    "base_url": "https://openrouter.ai/api/v1",
+    "endpoint": "chat/completions",
+    "api_key_env_var": "OPENROUTER_API_KEY",
+    "available_models": [
+      "openai/gpt-4",
+      "openai/gpt-3.5-turbo",
+      "anthropic/claude-3-haiku",
+      "anthropic/claude-3-sonnet",
+      "meta-llama/llama-3.1-8b-instruct",
+      "meta-llama/llama-3.1-70b-instruct"
+    ],
+    "default_model": "openai/gpt-3.5-turbo",
+    "default_temperature": 0.7,
+    "default_max_tokens": 8000,
+    "default_timeout": 30.0
+  }
+}

@@ -88,6 +88,19 @@ def create_cerebras_sync_client(api_key: Optional[str] = None,
         **kwargs
     )
 
+def create_groq_sync_client(api_key: Optional[str] = None,
+                               model: str = "llama-3.3-70b-versatile",
+                               **kwargs) -> SyncAPIClient:
+    """Create a sync client for Cerebras API."""
+    api_key: str = os.getenv("GROQ_API_KEY")
+    return create_sync_api_client(
+        api_key=api_key,
+        endpoint="chat/completions",
+        base_url="https://api.groq.com/openai/v1/",
+        model=model,
+        **kwargs
+    )
+
 def create_cerebras_async_client(api_key: Optional[str] = None,
                                 model: str = "llama-3.3-70b",
                                 **kwargs) -> AsyncAPIClient:

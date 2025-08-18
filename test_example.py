@@ -1,14 +1,15 @@
 import os
 api_key: str = os.getenv("CEREBRAS_API_KEY")
 
-from helpers_utils import create_cerebras_sync_client, create_cerebras_async_client, asyncio
+from helpers_utils import create_cerebras_sync_client, create_cerebras_async_client, create_groq_sync_client, asyncio
 
 # Example usage functions
 def sync_example():
     """Example of using the synchronous API client."""
     print("=== Synchronous API Client Example ===")
     
-    with create_cerebras_sync_client() as client:
+    # with create_cerebras_sync_client() as client:
+    with create_groq_sync_client() as client:
         try:
             # Simple chat
             response = client.chat("Say hello and nothing else")
@@ -62,7 +63,7 @@ def main():
     sync_example()
 
     # Test async client
-    asyncio.run(async_example())
+    # asyncio.run(async_example())
 
 if __name__ == "__main__":
     main()

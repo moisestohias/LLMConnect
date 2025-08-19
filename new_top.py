@@ -1,4 +1,7 @@
-""" HTTP LLM-Providers API Client using only Python standard library. """
+"""
+HTTP LLM-Providers API Client using only Python standard library. 
+A refactor of SyncHTTPAPIClient and AsyncHTTPAPIClient into two clasess BaseSyncHTTPAPIClient & BaseAsyncHTTPAPIClient
+"""
 
 import json
 import asyncio

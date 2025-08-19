@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Type, Union, Any, Callable
 
-from top_fixed import SyncAPIClient, AsyncAPIClient # import BaseSyncHTTPAPIClient, BaseAsyncHTTPAPIClient
+from top import SyncAPIClient, AsyncAPIClient # import BaseSyncHTTPAPIClient, BaseAsyncHTTPAPIClient
 
 
 class Provider(Enum):
@@ -289,21 +289,21 @@ def main():
   # print(resp)
   # print(client.messages)
 
-  ## Manual-Conversation Management Using Send
-  messages = []
-  def append_user_prompt(prompt): messages.append({'role': 'user', 'content': prompt})
-  def append_assistant_prompt(prompt): messages.append({'role': 'assistant', 'content': prompt})
-  # 
-  append_user_prompt(user_prompt_1)
-  resp = client.send(messages)
-  append_assistant_prompt(resp)
-  print(resp)
+  # ## Manual-Conversation Management Using Send
+  # messages = []
+  # def append_user_prompt(prompt): messages.append({'role': 'user', 'content': prompt})
+  # def append_assistant_prompt(prompt): messages.append({'role': 'assistant', 'content': prompt})
+  # # 
+  # append_user_prompt(user_prompt_1)
+  # resp = client.send(messages)
+  # append_assistant_prompt(resp)
+  # print(resp)
 
-  # 
-  append_user_prompt(user_prompt_2)
-  resp = client.send(messages)
-  append_assistant_prompt(resp)
-  print(resp)
+  # # 
+  # append_user_prompt(user_prompt_2)
+  # resp = client.send(messages)
+  # append_assistant_prompt(resp)
+  # print(resp)
 
 if __name__ == '__main__':
   main()

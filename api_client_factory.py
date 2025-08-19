@@ -5,7 +5,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Type, Union, Any, Callable
-from top import SyncAPIClient, AsyncAPIClient
+
+from top_fixed import SyncAPIClient, AsyncAPIClient # import BaseSyncHTTPAPIClient, BaseAsyncHTTPAPIClient
 
 
 class Provider(Enum):
@@ -68,6 +69,8 @@ def load_provider_configs() -> Dict[Provider, ProviderConfig]:
             continue
     
     return provider_configs
+
+
 
 class APIClientFactory:
     """Factory class for creating API clients with provider-specific configurations."""
@@ -216,7 +219,6 @@ def _make_async_client_func(provider: Provider) -> Callable:
     return create_async_client
 
 
-# List all supported providers (makes it explicit and easy to maintain)
 
 # Provider configurations
 PROVIDER_CONFIGS = load_provider_configs()
@@ -240,3 +242,68 @@ for provider in PROVIDER_CONFIGS.keys():
 #     "create_openrouter_async_client",
 # ]
 
+# # --- New Factory Functions for Base Clients ---
+
+# def create_base_sync_client(
+#     provider: Provider,
+#     api_key: Optional[str] = None,
+#     **kwargs
+# ) -> BaseSyncHTTPAPIClient:
+#     """
+#     Create a base synchronous HTTP API client for the specified provider.
+#     This client provides low-level HTTP methods without chat-specific features.
+#     """
+#     config = PROVIDER_CONFIGS[provider]
+#     return BaseSyncHTTPAPIClient(
+#         api_key=config.get_api_key(api_key),
+#         **kwargs
+#     )
+
+
+# def create_base_async_client(
+#     provider: Provider,
+#     api_key: Optional[str] = None,
+#     **kwargs
+# ) -> BaseAsyncHTTPAPIClient:
+#     """
+#     Create a base asynchronous HTTP API client for the specified provider.
+#     This client provides low-level HTTP methods without chat-specific features.
+#     """
+#     config = PROVIDER_CONFIGS[provider]
+#     return BaseAsyncHTTPAPIClient(
+#         api_key=config.get_api_key(api_key),
+#         **kwargs
+#     )
+
+def main():
+  """ tests """
+  client = create_groq_sync_client()
+
+  user_prompt_1 = "say hello and nothing else"
+  user_prompt_2 = "now say it Spanish"
+
+  # ## Auto-Conversation Management Using Chat
+  # resp = client.chat(user_prompt_1)
+  # print(resp)
+  # resp = client.chat(user_prompt_2)
+  # print(resp)
+  # print(client.messages)
+
+  ## Manual-Conversation Management Using Send
+  messages = []
+  def append_user_prompt(prompt): messages.append({'role': 'user', 'content': prompt})
+  def append_assistant_prompt(prompt): messages.append({'role': 'assistant', 'content': prompt})
+  # 
+  append_user_prompt(user_prompt_1)
+  resp = client.send(messages)
+  append_assistant_prompt(resp)
+  print(resp)
+
+  # 
+  append_user_prompt(user_prompt_2)
+  resp = client.send(messages)
+  append_assistant_prompt(resp)
+  print(resp)
+
+if __name__ == '__main__':
+  main()

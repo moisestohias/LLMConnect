@@ -173,3 +173,35 @@ client = SyncAPIClient(
 stats = metrics.get_stats()
 print(f"Success rate: {(1 - stats['error_rate']) * 100:.1f}%")
 ```
+
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant APIClient
+    participant APIExecutor
+    participant HTTPClient
+    participant RequestExecutor
+    participant Middleware
+    participant ConnectionPool
+    participant LLMProvider
+
+    User->>APIClient: chat(prompt)
+    APIClient->>APIExecutor: prepare_request_data()
+    APIExecutor->>APIClient: request data
+    APIClient->>HTTPClient: request()
+    HTTPClient->>RequestExecutor: execute_request()
+    RequestExecutor->>Middleware: process_request()
+    Middleware-->>RequestExecutor: processed request
+    RequestExecutor->>ConnectionPool: get_connection()
+    ConnectionPool-->>RequestExecutor: connection
+    RequestExecutor->>LLMProvider: HTTP request
+    LLMProvider-->>RequestExecutor: HTTP response
+    RequestExecutor->>Middleware: process_response()
+    Middleware-->>RequestExecutor: processed response
+    RequestExecutor-->>HTTPClient: HTTPResponse
+    HTTPClient-->>APIClient: HTTPResponse
+    APIClient->>APIExecutor: process_response()
+    APIExecutor-->>APIClient: processed content
+    APIClient-->>User: response content
+```

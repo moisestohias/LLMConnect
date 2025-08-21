@@ -86,6 +86,7 @@ print(client.messages)
 
 
 ## Manual-Conversation Management Using Send
+messages = []
 append_user_prompt(user_prompt_1)
 resp = client.send(messages)
 append_assistant_prompt(resp)

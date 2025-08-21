@@ -70,8 +70,9 @@ client = SyncAPIClient(
     ]
 )
 
-# Manage conversation history (THIS IS WRONG, UPDATE IT)
-messages=[{"role":"user", "content":"What's the weather today?"}]
+messages = []
+def append_user_prompt(prompt): messages.append({'role': 'user', 'content': prompt})
+def append_assistant_prompt(prompt): messages.append({'role': 'assistant', 'content': prompt})
 
 user_prompt_1 = "say hello and nothing else"
 user_prompt_2 = "now say it Spanish"
@@ -83,22 +84,17 @@ resp = client.chat(user_prompt_2)
 print(resp)
 print(client.messages)
 
+
 ## Manual-Conversation Management Using Send
-messages = []
-def append_user_prompt(prompt): messages.append({'role': 'user', 'content': prompt})
-def append_assistant_prompt(prompt): messages.append({'role': 'assistant', 'content': prompt})
-# 
 append_user_prompt(user_prompt_1)
 resp = client.send(messages)
 append_assistant_prompt(resp)
 print(resp)
 
-# 
 append_user_prompt(user_prompt_2)
 resp = client.send(messages)
 append_assistant_prompt(resp)
 print(resp)
-
 ```
 
 ### Asynchronous Usage

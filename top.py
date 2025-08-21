@@ -6,12 +6,9 @@ This was the original version. I've added send & post to both SyncAPIClient & As
 import json
 import asyncio
 from typing import Dict, List, Optional, Any, AsyncIterator, Union, Iterator
-from base import (
-    SyncHTTPClient, AsyncHTTPClient,
-    ConnectionPool, RetryConfig, BaseMiddleware,
-    AuthenticationMiddleware, UserAgentMiddleware, LoggingMiddleware,
-    HTTPResponse,
-)
+
+from base import SyncHTTPClient, AsyncHTTPClient, ConnectionPool, RetryConfig
+from middlewares import AuthenticationMiddleware, UserAgentMiddleware, LoggingMiddleware, HTTPResponse
 
 from utils import validate_messages_format
 user_agent: str = "APIClient/1.0.0"
@@ -19,7 +16,14 @@ user_agent: str = "APIClient/1.0.0"
 
 # Core API Logic
 class APIExecutor:
-    """Core API logic shared between sync and async clients."""
+    """
+    Core API logic shared between sync and async clients.
+    It's designed specifically for an OpenAI-compatible "chat/completions" endpoint.
+    Which is a Tightly Coupled design, A better approach would be, 
+    Decouple the generic API logic from the specific "chat" logic. 
+    `APIExecutor` could be refactored into a `BaseAPIExecutor`, with a `ChatAPIExecutor` 
+    subclass that manages message history and chat-specific data formatting.
+    """
 
     def __init__(self, api_key: str, base_url: str, model: str, 
                  endpoint: str = "chat/completions",

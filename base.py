@@ -3,7 +3,6 @@ from contextlib import contextmanager
 
 from typing import List, AsyncIterator, Tuple
 
-
 from exceptions import * 
 from middlewares import * # this also import models
 
@@ -145,7 +144,11 @@ class RetryConfig:
 
 # Core Request Execution Logic
 class RequestExecutor:
-    """Core request execution logic shared between sync and async clients."""
+    """
+    Core request execution logic SHARED BETWEEN Sync and Async clients.
+      - Cons: This approach forces the synchronous client to manage asynchronous code execution, leading to inefficiency (thread spawning) and complexity. It also means that middleware intended for the sync path must still be implemented asynchronously, which is conceptually awkward.
+      - Pros: Having a single implementation ables to handle both Sync & Async, makes the code much much shorter and DRY. And it's simpler to maintain, For middleware you implement only one version (async) it works for both.
+    """
 
     def __init__(self, connection_pool: Optional[ConnectionPool] = None,
                  retry_config: Optional[RetryConfig] = None,

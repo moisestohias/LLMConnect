@@ -25,11 +25,13 @@ class APIExecutor:
     subclass that manages message history and chat-specific data formatting.
     """
 
-    def __init__(self, api_key: str, base_url: str, model: str, 
+    def __init__(self, api_key: str, base_url: str, model: str,
                  endpoint: str = "chat/completions",
                  temperature: float = 0.7,
                  max_completion_tokens: int = 100,
-                 timeout: float = 30.0):
+                 timeout: float = 30.0,
+                 tools: Optional[List[Dict[str, Any]]] = None,
+                 tool_choice: Optional[str] = None):
         self.api_key = api_key
         self.base_url = base_url.rstrip('/')
         self.model = model
@@ -39,11 +41,15 @@ class APIExecutor:
         # LLM-specific parameters
         self.temperature = temperature
         self.max_completion_tokens = max_completion_tokens
+        self.tools = tools
+        self.tool_choice = tool_choice
         self.messages = []
 
     def set_parameters(self, model: Optional[str] = None,
                       temperature: Optional[float] = None,
-                      max_completion_tokens: Optional[int] = None):
+                      max_completion_tokens: Optional[int] = None,
+                      tools: Optional[List[Dict[str, Any]]] = None,
+                      tool_choice: Optional[str] = None):
         """Update LLM parameters."""
         if model is not None:
             self.model = model
@@ -51,14 +57,23 @@ class APIExecutor:
             self.temperature = temperature
         if max_completion_tokens is not None:
             self.max_completion_tokens = max_completion_tokens
+        if tools is not None:
+            self.tools = tools
+        if tool_choice is not None:
+            self.tool_choice = tool_choice
 
     def clear_messages(self):
         """Clear the message history."""
         self.messages = []
 
-    def add_message(self, role: str, content: str):
+    def add_message(self, role: str, content: Optional[str], tool_calls: Optional[List[Dict[str, Any]]] = None):
         """Add a message to the conversation history."""
-        self.messages.append({"role": role, "content": content})
+        message = {"role": role}
+        if content is not None:
+            message["content"] = content
+        if tool_calls:
+            message["tool_calls"] = tool_calls
+        self.messages.append(message)
 
     def prepare_request_data(self, prompt: str|List[Dict[str, str]], stream: bool = False) -> Dict[str, Any]:
         """Prepare the request data for the API call."""
@@ -79,6 +94,10 @@ class APIExecutor:
             "max_completion_tokens": self.max_completion_tokens
         }
 
+        if self.tools:
+            data["tools"] = self.tools
+        if self.tool_choice:
+            data["tool_choice"] = self.tool_choice
         if stream:
             data["stream"] = True
 
@@ -100,15 +119,21 @@ class APIExecutor:
 
         return url, request_headers, body
 
-    def process_non_streaming_response(self, response: HTTPResponse) -> str:
+    def process_non_streaming_response(self, response: HTTPResponse) -> Union[str, Dict[str, Any]]:
         """Process a non-streaming chat response."""
         result = json.loads(response.body.decode('utf-8'))
-        assistant_message = result["choices"][0]["message"]["content"]
+        message = result["choices"][0]["message"]
 
-        # Add assistant's response to history
-        self.add_message("assistant", assistant_message)
-
-        return assistant_message
+        if "tool_calls" in message:
+            # Handle tool calls
+            tool_calls = message["tool_calls"]
+            self.add_message("assistant", None, tool_calls=tool_calls)
+            return tool_calls
+        else:
+            # Handle regular text response
+            assistant_message = message.get("content", "")
+            self.add_message("assistant", assistant_message)
+            return assistant_message
 
     def parse_streaming_chunk(self, chunk: bytes) -> Optional[str]:
         """Parse a streaming chunk and extract content."""
@@ -150,13 +175,16 @@ class SyncAPIClient:
                  temperature: float = 0.7,
                  max_completion_tokens: int = 100,
                  timeout: float = 30.0,
+                 tools: Optional[List[Dict[str, Any]]] = None,
+                 tool_choice: Optional[str] = None,
                  http_client: Optional[SyncHTTPClient] = None,
                  middleware: Optional[List[BaseMiddleware]] = None,
                  connection_pool: Optional[ConnectionPool] = None,
                  retry_config: Optional[RetryConfig] = None):
 
         self._executor = APIExecutor(
-            api_key, base_url, model, endpoint, temperature, max_completion_tokens, timeout
+            api_key, base_url, model, endpoint, temperature,
+            max_completion_tokens, timeout, tools, tool_choice
         )
 
         # Use provided client or create a new one
@@ -193,17 +221,21 @@ class SyncAPIClient:
 
     def set_parameters(self, model: Optional[str] = None,
                       temperature: Optional[float] = None,
-                      max_completion_tokens: Optional[int] = None):
+                      max_completion_tokens: Optional[int] = None,
+                      tools: Optional[List[Dict[str, Any]]] = None,
+                      tool_choice: Optional[str] = None):
         """Update LLM parameters."""
-        self._executor.set_parameters(model, temperature, max_completion_tokens)
+        self._executor.set_parameters(
+            model, temperature, max_completion_tokens, tools, tool_choice
+        )
 
     def clear_messages(self):
         """Clear the message history."""
         self._executor.clear_messages()
 
-    def add_message(self, role: str, content: str):
+    def add_message(self, role: str, content: str, tool_calls: Optional[List[Dict[str, Any]]] = None):
         """Add a message to the conversation history."""
-        self._executor.add_message(role, content)
+        self._executor.add_message(role, content, tool_calls)
 
     def post(self, url: str, headers: Optional[Dict[str, str]] = None,
              body: Optional[bytes] = None, timeout: Optional[float] = None) -> HTTPResponse:
@@ -270,13 +302,16 @@ class AsyncAPIClient:
                 temperature: float = 0.7,
                 max_completion_tokens: int = 100,
                 timeout: float = 30.0,
+                tools: Optional[List[Dict[str, Any]]] = None,
+                tool_choice: Optional[str] = None,
                 http_client: Optional[AsyncHTTPClient] = None,
                 middleware: Optional[List[BaseMiddleware]] = None,
                 connection_pool: Optional[ConnectionPool] = None,
                 retry_config: Optional[RetryConfig] = None):
 
         self._executor = APIExecutor(
-            api_key, base_url, model, endpoint, temperature, max_completion_tokens, timeout
+            api_key, base_url, model, endpoint, temperature,
+            max_completion_tokens, timeout, tools, tool_choice
         )
 
         # Use provided client or create a new one
@@ -313,17 +348,21 @@ class AsyncAPIClient:
 
     def set_parameters(self, model: Optional[str] = None,
                       temperature: Optional[float] = None,
-                      max_completion_tokens: Optional[int] = None):
+                      max_completion_tokens: Optional[int] = None,
+                      tools: Optional[List[Dict[str, Any]]] = None,
+                      tool_choice: Optional[str] = None):
         """Update LLM parameters."""
-        self._executor.set_parameters(model, temperature, max_completion_tokens)
+        self._executor.set_parameters(
+            model, temperature, max_completion_tokens, tools, tool_choice
+        )
 
     def clear_messages(self):
         """Clear the message history."""
         self._executor.clear_messages()
 
-    def add_message(self, role: str, content: str):
+    def add_message(self, role: str, content: str, tool_calls: Optional[List[Dict[str, Any]]] = None):
         """Add a message to the conversation history."""
-        self._executor.add_message(role, content)
+        self._executor.add_message(role, content, tool_calls)
 
     async def post(self, url: str, headers: Optional[Dict[str, str]] = None,
              body: Optional[bytes] = None, timeout: Optional[float] = None) -> HTTPResponse:

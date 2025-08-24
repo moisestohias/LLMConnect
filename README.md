@@ -1,6 +1,6 @@
 # HTTP LLM-Providers API Client
 
-A Python HTTP client implementation for interacting with Large Language Model (LLM) providers, featuring connection pooling, retry logic, middleware support, and both synchronous and asynchronous interfaces.
+A tiny self contained Python HTTP client implementation for interacting with LLM providers (Groq, Cerebras, Openrouter..), featuring connection pooling, retry logic, middleware support, and both synchronous and asynchronous interfaces.
 
 ## Project Overview
 
@@ -205,3 +205,10 @@ sequenceDiagram
     APIExecutor-->>APIClient: processed content
     APIClient-->>User: response content
 ```
+
+---
+
+## TODO
++ [ ] 2025-08-23 | Implement functional calling support (tools)
++ [ ] 2025-08-23 | Refactor type annotation to only use python >= 3.8 
+  + [ ] Discard the use of list of `|`, use List and Union instead

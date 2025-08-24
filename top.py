@@ -7,10 +7,10 @@ import json
 import asyncio
 from typing import Dict, List, Optional, Any, AsyncIterator, Union, Iterator
 
-from base import SyncHTTPClient, AsyncHTTPClient, ConnectionPool, RetryConfig
-from middlewares import AuthenticationMiddleware, UserAgentMiddleware, LoggingMiddleware, HTTPResponse
+from .base import SyncHTTPClient, AsyncHTTPClient, ConnectionPool, RetryConfig
+from .middlewares import AuthenticationMiddleware, UserAgentMiddleware, LoggingMiddleware, HTTPResponse, BaseMiddleware
 
-from utils import validate_messages_format
+from .utils import validate_messages_format
 user_agent: str = "APIClient/1.0.0"
 
 

@@ -7,7 +7,7 @@ import json
 import asyncio
 from typing import Dict, List, Optional, Any, AsyncIterator, Union, Iterator
 
-from base import (
+from .base import (
     SyncHTTPClient, AsyncHTTPClient,
     ConnectionPool, RetryConfig, BaseMiddleware,
     AuthenticationMiddleware, UserAgentMiddleware, LoggingMiddleware,

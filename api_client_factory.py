@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Type, Union, Any, Callable
 
-from top import SyncAPIClient, AsyncAPIClient # import BaseSyncHTTPAPIClient, BaseAsyncHTTPAPIClient
+from .top import SyncAPIClient, AsyncAPIClient # import BaseSyncHTTPAPIClient, BaseAsyncHTTPAPIClient
 
 
 class Provider(Enum):
